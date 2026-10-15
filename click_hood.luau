@@ -610,6 +610,18 @@ end
 local function aimPos(part)
 	return part:IsA("Bone") and part.WorldPosition or part.Position
 end
+
+local function predPos(part)
+	local pos = aimPos(part)
+	if CFG.Pred > 0 and part.Parent then
+		local char = part:IsA("Bone") and part.Parent and part.Parent.Parent or part.Parent
+		local root = char and char:FindFirstChild("HumanoidRootPart")
+		if root then
+			pos = pos + root.AssemblyLinearVelocity * CFG.Pred
+		end
+	end
+	return pos
+end
 local function getTarget()
 	local mPos = uis:GetMouseLocation()
 	local cam = ws.CurrentCamera
@@ -684,18 +696,6 @@ local function redirectTarget()
 		end
 	end
 	return curTarget
-end
-
-local function predPos(part)
-	local pos = aimPos(part)
-	if CFG.Pred > 0 and part.Parent then
-		local char = part:IsA("Bone") and part.Parent and part.Parent.Parent or part.Parent
-		local root = char and char:FindFirstChild("HumanoidRootPart")
-		if root then
-			pos = pos + root.AssemblyLinearVelocity * CFG.Pred
-		end
-	end
-	return pos
 end
 
 local silentOn = function() return not FL_DEAD and flag("silent_aim", true) and flag("aim_enable", true) end
