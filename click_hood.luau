@@ -676,10 +676,12 @@ end)
 
 local curTarget, curTargetAt = nil, 0
 local function redirectTarget()
-	if CFG.HitChance < 100 and math.random(100) > CFG.HitChance then return nil end
 	if not curTarget or not curTarget.Parent or os.clock() - curTargetAt > 0.1 then
 		curTarget = getTarget()
 		curTargetAt = os.clock()
+		if curTarget and CFG.HitChance < 100 and math.random(100) > CFG.HitChance then
+			curTarget = nil
+		end
 	end
 	return curTarget
 end
@@ -702,7 +704,7 @@ pcall(function()
 	local okKick
 	okKick = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
 		if not checkcaller() and getnamecallmethod() == "Kick" and self == lp then
-			return task.wait(9e9)
+			return
 		end
 		return okKick(self, ...)
 	end))
@@ -741,7 +743,7 @@ end))
 local oldIndex
 oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, k)
 	if not checkcaller() and silentOn() then
-		if self:IsA("Mouse") and (k == "Hit" or k == "Target") then
+		if self:IsA("Mouse") and (k == "Hit" or k == "Target") and aimHeld() then
 			local t = redirectTarget()
 			if t then
 				if k == "Hit" then return CFrame.new(predPos(t)) end
